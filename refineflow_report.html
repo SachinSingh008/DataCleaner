@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RefineFlow Cleaning Report — test.csv</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #e2e8f0;
+      --font: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      color: white;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+    .logo-text {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      background: linear-gradient(to right, #ffffff, #e2e8f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 1.5rem;
+    }
+
+    .meta-item h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 0.25rem;
+    }
+
+    .meta-item p {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
+    }
+
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-8 { grid-column: span 8; }
+    .col-12 { grid-column: span 12; }
+
+    @media (max-width: 768px) {
+      .col-6, .col-4, .col-8, .col-12 {
+        grid-column: span 12;
+      }
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Stats Display */
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-row:last-child {
+      border-bottom: none;
+    }
+
+    .stats-label {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .stats-value {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Memory visualizer */
+    .memory-viz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+      height: 80%;
+    }
+
+    .memory-bar-wrapper {
+      width: 100%;
+      background-color: var(--border);
+      height: 28px;
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .memory-bar-fill {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 1s ease-out;
+    }
+
+    .memory-reduction-badge {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+
+    th {
+      background-color: var(--bg-primary);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    tr:hover td {
+      background-color: rgba(79, 70, 229, 0.02);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-success { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .badge-warning { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+    .badge-danger { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    .badge-primary { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+
+    /* Schema Drift Section */
+    .drift-alert {
+      border-left: 4px solid var(--warning);
+      background-color: rgba(245, 158, 11, 0.03);
+      padding: 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1rem;
+    }
+
+    /* Timeline clean log */
+    .timeline {
+      position: relative;
+      padding-left: 1.5rem;
+      border-left: 2px solid var(--border);
+      margin-left: 0.5rem;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: calc(-1.5rem - 6px);
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      border: 2px solid var(--bg-card);
+    }
+
+    .timeline-item.success::before {
+      background-color: var(--success);
+    }
+
+    .timeline-item.warning::before {
+      background-color: var(--warning);
+    }
+
+    .timeline-item.error::before {
+      background-color: var(--danger);
+    }
+
+    .timeline-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-text {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Human Review Queue */
+    .review-row {
+      background-color: rgba(245, 158, 11, 0.02);
+    }
+    
+    .btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: white;
+      transition: all 0.2s;
+    }
+
+    .btn-accept {
+      background-color: var(--success);
+      color: white;
+      border: none;
+    }
+
+    .btn-accept:hover {
+      background-color: #0d9488;
+    }
+
+    .btn-override {
+      background-color: var(--danger);
+      color: white;
+      border: none;
+    }
+
+    .btn-override:hover {
+      background-color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo-area">
+        <div class="logo-icon">R</div>
+        <div class="logo-text">RefineFlow</div>
+      </div>
+      <h2>Data Quality & Refinement Report</h2>
+      
+      <div class="meta-grid">
+        <div class="meta-item">
+          <h4>Source File</h4>
+          <p>test.csv</p>
+        </div>
+        <div class="meta-item">
+          <h4>Run Timestamp</h4>
+          <p>2026-05-29T20:55:05.959672Z</p>
+        </div>
+        <div class="meta-item">
+          <h4>Runtime</h4>
+          <p>1.37 seconds</p>
+        </div>
+        <div class="meta-item">
+          <h4>Processing Engine</h4>
+          <p>Pandas (4 partitions)</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Schema Drift Alerts -->
+    
+    <div class="card col-12" style="margin-bottom: 2rem; border: 1px solid var(--warning);">
+      <div class="card-title" style="color: var(--warning);">
+        <span>⚠</span> Schema Drift Warnings Detected
+      </div>
+      <div class="drift-alert">
+        
+        <p><strong>New Columns Added:</strong> rank, peak, all_time_peak, actual_gross, adjusted_gross_in_2022_dollars, artist, tour_title, year_s, shows, average_gross, ref</p>
+        
+        
+        <p><strong>Removed Columns:</strong> order_id, user_email, price, weight</p>
+        
+        
+        
+      </div>
+    </div>
+    
+
+    <!-- Human Review Queue (Confidence < 70%) -->
+    
+
+    <!-- Dashboard Core Stats -->
+    <div class="dashboard-grid">
+      <!-- Dataset Dimensions Card -->
+      <div class="card col-4">
+        <div class="card-title">Dataset Dimensions</div>
+        <div class="stats-row">
+          <span class="stats-label">Original Row Count</span>
+          <span class="stats-value">0</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Final Row Count</span>
+          <span class="stats-value">20</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Original Columns</span>
+          <span class="stats-value">0</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Final Columns</span>
+          <span class="stats-value">11</span>
+        </div>
+      </div>
+
+      <!-- Cleaning Metrics -->
+      <div class="card col-4">
+        <div class="card-title">Cleaning Summary</div>
+        <div class="stats-row">
+          <span class="stats-label">Null values filled</span>
+          <span class="stats-value">0</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Duplicates removed</span>
+          <span class="stats-value">0</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Outliers Handled</span>
+          <span class="stats-value">0</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Type conversions</span>
+          <span class="stats-value">0</span>
+        </div>
+      </div>
+
+      <!-- Memory Savings -->
+      <div class="card col-4">
+        <div class="card-title">Memory Footprint</div>
+        <div class="memory-viz-container">
+          <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.85rem; color: var(--text-muted);">
+            <span>Before: 0.0 GB</span>
+            <span>After: 0.0 GB</span>
+          </div>
+          <div class="memory-bar-wrapper">
+            <div class="memory-bar-fill" style="width: 97.2%;"></div>
+          </div>
+          <div class="memory-reduction-badge">
+            2.8% RAM Reduction
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-Column Details Table -->
+      <div class="card col-12">
+        <div class="card-title">Detailed Columns Analysis</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Column Name</th>
+              <th>Dtype</th>
+              <th>Nulls Filled</th>
+              <th>Strategy</th>
+              <th>Outliers Detected</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Global Validation Stats -->
+      <div class="card col-6">
+        <div class="card-title">Global Integrity Validation</div>
+        <div class="stats-row">
+          <span class="stats-label">Cross-chunk duplicate rows</span>
+          <span class="stats-value">0</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Fuzzy categories standardized</span>
+          <span class="stats-value">{'all_time_peak': {'variants': 6, 'canonical': 5}, 'tour_title': {'variants': 20, 'canonical': 19}, 'ref': {'variants': 20, 'canonical': 13}}</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Domain integrity violations fixed</span>
+          <span class="stats-value">0</span>
+        </div>
+      </div>
+
+      <!-- Export Deliverables -->
+      <div class="card col-6">
+        <div class="card-title">Export Deliverables</div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+          <div class="stats-row" style="margin-top: 0.5rem;">
+            <span class="stats-label">Total Exported Size</span>
+            <span class="stats-value">0.0 MB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Execution Log Timeline -->
+      <div class="card col-12">
+        <div class="card-title">Refinement Log Timeline</div>
+        <div class="timeline">
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO] Scanning: files\test.csv</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] Scan complete — 2.2 KB, 20 rows, 11 cols</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] Engine selected: Pandas</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO] Loading data...</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] Loaded 20 rows × 11 cols</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO] Row count (20) below threshold (10000). Skipping partitioning (single partition mode).</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO] Running parallel cleaning on 1 chunks using 15 workers...</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] Chunk 1/1 cleaned successfully - Nulls: 27 | Dupes: 0 | Outliers: 0 | Memory: +31.8%</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] All 1 chunks cleaned successfully</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO] Global Dedup: No cross-chunk duplicates found</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] Category Standardization: Standardized 3 columns:</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO]   - all_time_peak: 6 variants -> 5 canonical values</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO]   - tour_title: 20 variants -> 19 canonical values</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO]   - ref: 20 variants -> 13 canonical values</div>
+          </div>
+          
+          
+          
+            
+          
+          <div class="timeline-item error">
+            <div class="timeline-text">[ERROR] Schema Reconciliation: Missing expected columns: ['Ref.', 'Peak', 'Year(s)', 'Artist', 'Rank', 'Average gross', 'Tour title', 'Actual\xa0gross', 'Adjusted\xa0gross (in 2022 dollars)', 'Shows', 'All Time Peak']</div>
+          </div>
+          
+          
+          
+            
+          
+          <div class="timeline-item warning">
+            <div class="timeline-text">[WARNING] Schema Reconciliation: Detected extra columns: ['actual_gross', 'average_gross', 'year_s', 'tour_title', 'peak', 'ref', 'adjusted_gross_in_2022_dollars', 'artist', 'all_time_peak', 'rank', 'shows']</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO] Integrity checks: No violations detected</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] Final Null Audit: 0 nulls remaining</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] Global Validator: Completed validation checks.</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[SUCCESS] auto_clean() complete in 1.36s — 20 rows ready</div>
+          </div>
+          
+          
+          
+          <div class="timeline-item success">
+            <div class="timeline-text">[INFO] Memory Optimizer: No memory size reduction achieved (Current: 2.1 KB)</div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
